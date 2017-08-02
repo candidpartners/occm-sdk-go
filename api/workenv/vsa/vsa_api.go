@@ -80,6 +80,37 @@ func (api *VSAWorkingEnvironmentAPI) GetVolumes(workenvId string) ([]workenv.Vol
   return result, nil
 }
 
+// GetVolume retrieves a volume for the given working environment and volume name
+func (api *VSAWorkingEnvironmentAPI) GetVolume(workenvId, volumeName string) (*workenv.VolumeResponse, error) {
+  if workenvId == "" {
+		return nil, errors.New(workenv.ErrInvalidWorkenvId)
+	}
+
+  if volumeName == "" {
+		return nil, errors.New(workenv.ErrInvalidVolumeName)
+	}
+
+  volumes, err := api.GetVolumes(workenvId)
+  if err != nil {
+		return nil, errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  var result *workenv.VolumeResponse
+
+  for _, volume := range volumes {
+    if volume.Name == volumeName {
+      result = &volume
+      break
+    }
+  }
+
+  if result == nil {
+    return nil, errors.New(workenv.ErrInvalidVolumeName)
+  }
+
+  return result, nil
+}
+
 // QuoteVolume quotes a volume for the given request
 func (api *VSAWorkingEnvironmentAPI) QuoteVolume(request *VSAVolumeQuoteRequest) (*VSAVolumeQuoteResponse, error) {
   if request == nil {
