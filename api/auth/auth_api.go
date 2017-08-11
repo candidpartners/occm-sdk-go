@@ -31,7 +31,7 @@ func (api *AuthAPI) Login(email, password string) error {
 		return errors.New(client.ErrInvalidCredentials)
 	}
 
-  _, err := api.Client.Invoke("POST", "/auth/login",
+  _, _, err := api.Client.Invoke("POST", "/auth/login",
     nil,
     map[string]interface{}{
       "email": email,

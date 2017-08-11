@@ -25,9 +25,9 @@ type VSAVolumeCreateRequest struct {
   Deduplication           bool                                `json:"enableDeduplication"`
   CapacityTier            string                              `json:"capacityTier,omitempty"`
   ProviderVolumeType      string                              `json:"providerVolumeType,omitempty"`
-  VerifyNameUniqueness    bool                                `json:"verifyNameUniqueness"`
-  MaxNumOfDisksApprovedToAdd  int32                           `json:"maxNumOfDisksApprovedToAdd"`
+  MaxNumOfDisksApprovedToAdd  int                             `json:"maxNumOfDisksApprovedToAdd"`
   SyncToS3                bool                                `json:"syncToS3,omitempty"`
+  IOPS                    int                                 `json:"iops,omitempty"`
 }
 
 // VSA volume quote request
@@ -38,15 +38,11 @@ type VSAVolumeQuoteRequest struct {
   Name                    string                              `json:"name,omitempty"`
   Size                    *workenv.Capacity                   `json:"size,omitempty"`
   InitialSize             *workenv.Capacity                   `json:"initialSize,omitempty"`
-  SnapshotPolicyName      string                              `json:"snapshotPolicyName,omitempty"`
-  ExportPolicyInfo        *workenv.ExportPolicyInfo           `json:"exportPolicyInfo,omitempty"`
-  ShareInfo               *workenv.CreateCIFSShareInfoRequest `json:"shareInfo,omitempty"`
   ThinProvisioning        bool                                `json:"enableThinProvisioning"`
-  Compression             bool                                `json:"enableCompression"`
-  Deduplication           bool                                `json:"enableDeduplication"`
   CapacityTier            string                              `json:"capacityTier,omitempty"`
   ProviderVolumeType      string                              `json:"providerVolumeType,omitempty"`
   VerifyNameUniqueness    bool                                `json:"verifyNameUniqueness"`
+  IOPS                    int                                 `json:"iops,omitempty"`
 }
 
 type VSAVolumeQuoteResponse struct {

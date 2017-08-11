@@ -44,3 +44,11 @@ func ToString(v interface{}) string {
   b, _ := json.MarshalIndent(v, "", "  ")
   return string(b)
 }
+
+func GetRequestIdHeader(h map[string][]string) (string, error) {
+  val := h["Oncloud-Request-Id"]
+  if val != nil && len(val) > 0 {
+    return val[0], nil
+  }
+  return "", errors.New("Missing Oncloud-Request-Id header")
+}

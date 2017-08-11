@@ -10,6 +10,7 @@ import (
 
   "github.com/candidpartners/occm-sdk-go/api/workenv"
   "github.com/candidpartners/occm-sdk-go/api/client"
+  "github.com/candidpartners/occm-sdk-go/util"
 	"github.com/pkg/errors"
 )
 
@@ -38,7 +39,7 @@ func (api *VSAWorkingEnvironmentAPI) GetAggregates(workenvId string) ([]workenv.
 		return nil, errors.New(workenv.ErrInvalidWorkenvId)
 	}
 
-  data, err := api.Client.Invoke("GET", "/vsa/aggregates",
+  data, _, err := api.Client.Invoke("GET", "/vsa/aggregates",
     map[string]string{
       "workingEnvironmentId": workenvId,
     },
@@ -62,7 +63,7 @@ func (api *VSAWorkingEnvironmentAPI) GetVolumes(workenvId string) ([]workenv.Vol
 		return nil, errors.New(workenv.ErrInvalidWorkenvId)
 	}
 
-  data, err := api.Client.Invoke("GET", "/vsa/volumes",
+  data, _, err := api.Client.Invoke("GET", "/vsa/volumes",
     map[string]string{
       "workingEnvironmentId": workenvId,
     },
@@ -90,6 +91,7 @@ func (api *VSAWorkingEnvironmentAPI) GetVolume(workenvId, volumeName string) (*w
 		return nil, errors.New(workenv.ErrInvalidVolumeName)
 	}
 
+  // since the API call is not available, use the GetVolumes call instead
   volumes, err := api.GetVolumes(workenvId)
   if err != nil {
 		return nil, errors.Wrap(err, client.ErrInvalidRequest)
@@ -117,7 +119,7 @@ func (api *VSAWorkingEnvironmentAPI) QuoteVolume(request *VSAVolumeQuoteRequest)
 		return nil, errors.New(workenv.ErrInvalidVolumeQuoteRequest)
 	}
 
-  data, err := api.Client.Invoke("POST", "/vsa/volumes/quote", nil, request)
+  data, _, err := api.Client.Invoke("POST", "/vsa/volumes/quote", nil, request)
   if err != nil {
 		return nil, errors.Wrap(err, client.ErrInvalidRequest)
 	}
@@ -131,96 +133,126 @@ func (api *VSAWorkingEnvironmentAPI) QuoteVolume(request *VSAVolumeQuoteRequest)
 }
 
 // CreateVolume creates a volume for the given request
-func (api *VSAWorkingEnvironmentAPI) CreateVolume(createAggregateIfNotFound bool, request *VSAVolumeCreateRequest) error {
+func (api *VSAWorkingEnvironmentAPI) CreateVolume(createAggregateIfNotFound bool, request *VSAVolumeCreateRequest) (string, error) {
   if request == nil {
-		return errors.New(workenv.ErrInvalidVolumeCreationRequest)
+		return "", errors.New(workenv.ErrInvalidVolumeCreationRequest)
 	}
 
-  _, err := api.Client.Invoke("POST", "/vsa/volumes",
+  _, headers, err := api.Client.Invoke("POST", "/vsa/volumes",
     map[string]string{
       "createAggregateIfNotFound": fmt.Sprint(createAggregateIfNotFound),
     },
     request,
   )
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }
 
 // ModifyVolume modifies the given volume
-func (api *VSAWorkingEnvironmentAPI) ModifyVolume(workenvId, svmName, volumeName string, request *workenv.VolumeModifyRequest) error {
+func (api *VSAWorkingEnvironmentAPI) ModifyVolume(workenvId, svmName, volumeName string, request *workenv.VolumeModifyRequest) (string, error) {
   if request == nil {
-		return errors.New(workenv.ErrInvalidVolumeCreationRequest)
+		return "", errors.New(workenv.ErrInvalidVolumeModifyRequest)
 	}
 
-  _, err := api.Client.Invoke("PUT",
+  _, headers, err := api.Client.Invoke("PUT",
     fmt.Sprintf("/vsa/volumes/%v/%v/%v", workenvId, svmName, volumeName),
     nil, request)
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }
 
 // DeleteVolume deletes the given volume
-func (api *VSAWorkingEnvironmentAPI) DeleteVolume(workenvId, svmName, volumeName string) error {
-  _, err := api.Client.Invoke("DELETE",
+func (api *VSAWorkingEnvironmentAPI) DeleteVolume(workenvId, svmName, volumeName string) (string, error) {
+  _, headers, err := api.Client.Invoke("DELETE",
     fmt.Sprintf("/vsa/volumes/%v/%v/%v", workenvId, svmName, volumeName),
     nil, nil)
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }
 
 // MoveVolume moves the given volume
-func (api *VSAWorkingEnvironmentAPI) MoveVolume(workenvId, svmName, volumeName string, request *workenv.VolumeMoveRequest) error {
+func (api *VSAWorkingEnvironmentAPI) MoveVolume(workenvId, svmName, volumeName string, request *workenv.VolumeMoveRequest) (string, error) {
   if request == nil {
-		return errors.New(workenv.ErrInvalidVolumeCreationRequest)
+		return "", errors.New(workenv.ErrInvalidVolumeMoveRequest)
 	}
 
-  _, err := api.Client.Invoke("POST",
+  _, headers, err := api.Client.Invoke("POST",
     fmt.Sprintf("/vsa/volumes/%v/%v/%v/move", workenvId, svmName, volumeName),
     nil, request)
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }
 
 // CloneVolume clones the given volume
-func (api *VSAWorkingEnvironmentAPI) CloneVolume(workenvId, svmName, volumeName string, request *workenv.VolumeCloneRequest) error {
+func (api *VSAWorkingEnvironmentAPI) CloneVolume(workenvId, svmName, volumeName string, request *workenv.VolumeCloneRequest) (string, error) {
   if request == nil {
-		return errors.New(workenv.ErrInvalidVolumeCreationRequest)
+		return "", errors.New(workenv.ErrInvalidVolumeCloneRequest)
 	}
 
-  _, err := api.Client.Invoke("POST",
+  _, headers, err := api.Client.Invoke("POST",
     fmt.Sprintf("/vsa/volumes/%v/%v/%v/clone", workenvId, svmName, volumeName),
     nil, request)
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }
 
-// ChangeVolumeDiskType changes disk type for the given volume
-func (api *VSAWorkingEnvironmentAPI) ChangeVolumeDiskType(workenvId, svmName, volumeName string, request *workenv.VolumeChangeDiskTypeRequest) error {
+// ChangeVolumeTier changes tier for the given volume
+func (api *VSAWorkingEnvironmentAPI) ChangeVolumeTier(workenvId, svmName, volumeName string, request *workenv.ChangeVolumeTierRequest) (string, error) {
   if request == nil {
-		return errors.New(workenv.ErrInvalidVolumeCreationRequest)
+		return "", errors.New(workenv.ErrInvalidVolumeTierChangeRequest)
 	}
 
-  _, err := api.Client.Invoke("POST",
-    fmt.Sprintf("/vsa/volumes/%v/%v/%v/change-disk-type", workenvId, svmName, volumeName),
+  _, headers, err := api.Client.Invoke("POST",
+    fmt.Sprintf("/vsa/volumes/%v/%v/%v/change-tier", workenvId, svmName, volumeName),
     nil, request)
   if err != nil {
-		return errors.Wrap(err, client.ErrInvalidRequest)
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
 	}
 
-  return nil
+  requestId, err := util.GetRequestIdHeader(headers)
+  if err != nil {
+		return "", errors.Wrap(err, client.ErrInvalidRequest)
+	}
+
+  return requestId, nil
 }

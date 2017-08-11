@@ -7,4 +7,8 @@ const (
   ErrInvalidVolumeName = "Invalid volume name"
   ErrInvalidVolumeCreationRequest = "Invalid volume creation request"
   ErrInvalidVolumeQuoteRequest = "Invalid volume quote request"
+  ErrInvalidVolumeModifyRequest = "Invalid volume modify request"
+  ErrInvalidVolumeMoveRequest = "Invalid volume move request"
+  ErrInvalidVolumeCloneRequest = "Invalid volume clone request"
+  ErrInvalidVolumeTierChangeRequest = "Invalid volume tier change request"
 )

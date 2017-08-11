@@ -63,17 +63,17 @@ func New(context *Context) (*Client, error) {
 }
 
 // invoke makes an API request to the provided URI
-func (client *Client) Invoke(method, uri string, qsParams map[string]string, bodyParams interface{}) ([]byte, error) {
+func (client *Client) Invoke(method, uri string, qsParams map[string]string, bodyParams interface{}) ([]byte, map[string][]string, error) {
   // convert params
 	var data io.Reader
 	if bodyParams != nil {
 		parsed, err := util.ToJSONStream(bodyParams);
 
-    fmt.Println("SENDING BODY: ", util.ToString(bodyParams))
+    // fmt.Println("SENDING BODY: ", util.ToString(bodyParams))
 
     parsed, err = util.ToJSONStream(bodyParams);
     if err != nil {
-  		return nil, errors.Wrapf(err, ErrJSONConversion)
+  		return nil, nil, errors.Wrapf(err, ErrJSONConversion)
   	}
     data = parsed
 	}
@@ -81,7 +81,7 @@ func (client *Client) Invoke(method, uri string, qsParams map[string]string, bod
   // create HTTP request
   req, err := http.NewRequest(method, client.apiUrl + uri, data)
 	if err != nil {
-		return nil, errors.Wrapf(err, ErrCreatingHttpRequestForUri, uri)
+		return nil, nil, errors.Wrapf(err, ErrCreatingHttpRequestForUri, uri)
 	}
 
 	// clone existing headers
@@ -99,7 +99,7 @@ func (client *Client) Invoke(method, uri string, qsParams map[string]string, bod
   // invoke the API
 	res, err := client.httpClient.Do(req)
 	if err != nil {
-    return nil, errors.Wrapf(err, ErrInvokingHttpRequestForUri, uri)
+    return nil, nil, errors.Wrapf(err, ErrInvokingHttpRequestForUri, uri)
 	}
 
 	defer res.Body.Close()
@@ -107,8 +107,10 @@ func (client *Client) Invoke(method, uri string, qsParams map[string]string, bod
   // read response body
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrReadingResponseBody)
+		return nil, nil, errors.Wrap(err, ErrReadingResponseBody)
 	}
+
+  // fmt.Println("GOT RESPONSE: ", util.ToString(body), ": STATUS: ", res.StatusCode, "; HEADER: ", res.Header)
 
   // and assert status
   status := res.StatusCode
@@ -116,25 +118,25 @@ func (client *Client) Invoke(method, uri string, qsParams map[string]string, bod
 	case http.StatusOK:
 		// no-op
 	case http.StatusUnauthorized:
-		return nil, errors.Errorf(ErrUnauthorized)
+		return nil, nil, errors.Errorf(ErrUnauthorized)
 	case http.StatusForbidden:
-		return nil, errors.Errorf(ErrForbidden)
+		return nil, nil, errors.Errorf(ErrForbidden)
 	default:
     if status >= 200 && status < 300 {
       // all 200 errors are allowed
       break
     } else if status >= 500 && status < 600 {
-      return nil, errors.Errorf(ErrServerError, status)
+      return nil, nil, errors.Errorf(ErrServerError, status)
     }
 
 		var s string
 		if body != nil {
 			s = string(body)
 		}
-		return nil, errors.Errorf(ErrUnexpectedHttpResponse, res.StatusCode, s)
+		return nil, nil, errors.Errorf(ErrUnexpectedHttpResponse, res.StatusCode, s)
 	}
 
-	return body, nil
+	return body, res.Header, nil
 }
 
 // cloneHeader clones the header

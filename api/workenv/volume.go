@@ -10,7 +10,7 @@ import (
 
 // Capacity wrapper object
 type Capacity struct {
-  Size float32 `json:"size,omitempty"`
+  Size float64 `json:"size,omitempty"`
   Unit string `json:"unit,omitempty"`
 }
 
@@ -46,7 +46,7 @@ type Disk struct {
 // Export policy info wrapper
 type ExportPolicyInfo struct {
   PolicyType      string    `json:"policyType,omitempty"`
-  IPs             []string  `json:"ips,omitempty"`
+  IPs             []string  `json:"ips"`
 }
 
 // Named export policy info wrapper
@@ -71,7 +71,7 @@ type CIFSShareInfo struct {
 // Create CIFS share info request wrapper
 type CreateCIFSShareInfoRequest struct {
   ShareName      string    `json:"shareName,omitempty"`
-  AccessControl  []CIFSShareUserPermissions `json:"accessControl,omitempty"`
+  AccessControl  CIFSShareUserPermissions `json:"accessControl,omitempty"`
 }
 
 // Volume response wrapper
@@ -90,7 +90,7 @@ type VolumeResponse struct {
   Deduplication           bool                  `json:"deduplication"`
   SnapshotPolicy          string                `json:"snapshotPolicy,omitempty"`
   SecurityStyle           string                `json:"securityStyle,omitempty"`
-  ExportPolicyInfo        NamedExportPolicyInfo `json:"exportPolicyInfo,omitempty"`
+  ExportPolicyInfo        *NamedExportPolicyInfo `json:"exportPolicyInfo,omitempty"`
   ShareNames              []string              `json:"shareNames,omitempty"`
   ShareInfo               []CIFSShareInfo       `json:"shareInfo,omitempty"`
   ParentVolumeName        string                `json:"parentVolumeName,omitempty"`
@@ -104,16 +104,8 @@ type VolumeResponse struct {
   CloneNames              []string              `json:"cloneNames,omitempty"`
   Moving                  bool                  `json:"moving"`
   PrimaryNoFailoverMountPoint   string          `json:"primaryNoFailoverMountPoint,omitempty"`
-  secondaryNoFailoverMountPoint string          `json:"secondaryNoFailoverMountPoint,omitempty"`
+  SecondaryNoFailoverMountPoint string          `json:"secondaryNoFailoverMountPoint,omitempty"`
   CapacityTier            string                `json:"capacityTier,omitempty"`
-}
-
-// Change disk type request wrapper
-type VolumeChangeDiskTypeRequest struct {
-  AggregateName           string  `json:"aggregateName,omitempty"`
-  NumOfDisks              int32   `json:"numOfDisks"`
-  NewAggregate            bool    `json:"newAggregate"`
-  NewDiskTypeName         string  `json:"newDiskTypeName,omitempty"`
 }
 
 // Volume clone request wrapper
@@ -125,8 +117,8 @@ type VolumeCloneRequest struct {
 // Volume move request wrapper
 type VolumeMoveRequest struct {
   TargetAggregateName     string  `json:"targetAggregateName,omitempty"`
-  NumOfDisksToAdd         int32   `json:"numOfDisksToAdd"`
-  CreateTargetAggregate   bool    `json:"createTargetAggregate"`
+  NumOfDisksToAdd         int     `json:"numOfDisksToAdd,omitempty"`
+  CreateTargetAggregate   bool    `json:"createTargetAggregate,omitempty"`
   NewDiskTypeName         string  `json:"newDiskTypeName,omitempty"`
 }
 
@@ -135,6 +127,16 @@ type VolumeModifyRequest struct {
   SnapshotPolicyName      string              `json:"snapshotPolicyName,omitempty"`
   ExportPolicyInfo        *ExportPolicyInfo   `json:"exportPolicyInfo,omitempty"`
   ShareInfo               *CIFSShareInfo      `json:"shareInfo,omitempty"`
+}
+
+// Volume tier change request wrapper
+type ChangeVolumeTierRequest struct {
+  AggregateName           string  `json:"aggregateName,omitempty"`
+  NumOfDisks              int     `json:"numOfDisks,omitempty"`
+  NewAggregate            bool    `json:"newAggregate,omitempty"`
+  NewDiskTypeName         string  `json:"newDiskTypeName,omitempty"`
+  NewCapacityTier         string  `json:"newCapacityTier,omitempty"`
+  IOPS                    int     `json:"iops,omitempty"`
 }
 
 func VolumeResponseListFromJSON(data []byte) ([]VolumeResponse, error) {

@@ -27,7 +27,7 @@ func New(context *client.Context) (*WorkingEnvironmentAPI, error) {
 
 // GetWorkingEnvironments retrieves a list of all working environments
 func (api *WorkingEnvironmentAPI) GetWorkingEnvironments() (*WorkingEnvironments, error) {
-  data, err := api.Client.Invoke("GET", "/working-environments", nil, nil)
+  data, _, err := api.Client.Invoke("GET", "/working-environments", nil, nil)
   if err != nil {
 		return nil, errors.Wrap(err, client.ErrInvalidRequest)
 	}
