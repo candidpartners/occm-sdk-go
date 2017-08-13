@@ -60,7 +60,7 @@ func TestInvoke(t *testing.T) {
 	})
 
 	response, err := client.Invoke("PUT", "/some/random/endpoint",
-    map[string]interface{}{
+    map[string]string{}{
       "qs1": "qs789",
       "qs2": false,
     },

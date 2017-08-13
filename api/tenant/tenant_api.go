@@ -27,7 +27,7 @@ func New(context *client.Context) (*TenantAPI, error) {
 
 // GetTenants retrieves a list of all tenants
 func (api *TenantAPI) GetTenants() ([]Tenant, error) {
-  data, err := api.Client.Invoke("GET", "/tenants", nil, nil)
+  data, _, err := api.Client.Invoke("GET", "/tenants", nil, nil)
   if err != nil {
 		return nil, errors.Wrap(err, client.ErrInvalidRequest)
 	}
