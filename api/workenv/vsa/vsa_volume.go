@@ -46,7 +46,7 @@ type VSAVolumeQuoteRequest struct {
 }
 
 type VSAVolumeQuoteResponse struct {
-  NumOfDisks                int32                             `json:"numOfDisks"`
+  NumOfDisks                int                               `json:"numOfDisks"`
   DiskSize                  *workenv.Capacity                 `json:"diskSize,omitempty"`
   AggregateName             string                            `json:"aggregateName,omitempty"`
   NewAggregate              bool                              `json:"newAggregate"`
