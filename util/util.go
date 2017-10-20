@@ -1,4 +1,4 @@
-// Utility package
+// Utility package.
 package util
 
 import (

@@ -1,2 +1,2 @@
-// Package OCCM API implements OnCommand Cloud Manager API
+// Package OCCM API implements OnCommand Cloud Manager API.
 package api

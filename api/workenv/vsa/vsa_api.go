@@ -1,4 +1,4 @@
-// Package implements OCCM Working Environments API (VSA)
+// Package implements OCCM Working Environments API (VSA).
 package vsa
 
 // TODO: determine how to improve reuse of methods between VSA and HA APIs

@@ -1,4 +1,4 @@
-// Package implements helper client functionality
+// Package implements helper client functionality.
 package client
 
 // Error messages
