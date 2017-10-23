@@ -1,4 +1,4 @@
-// Package implements OCCM Working Environments API
+// Package implements OCCM Working Environments API.
 package workenv
 
 import (

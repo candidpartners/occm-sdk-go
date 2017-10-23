@@ -1,4 +1,4 @@
-// Package implements OCCM Tenant API
+// Package implements OCCM Tenant API.
 package tenant
 
 import (

@@ -1,4 +1,4 @@
-// Package implements OCCM Working Environments API (AWS-HA)
+// Package implements OCCM Working Environments API (AWS-HA).
 package awsha
 
 // TODO: determine how to improve reuse of methods between VSA and HA APIs

@@ -1,4 +1,4 @@
-// Package implements OCCM Auth API
+// Package implements OCCM Auth API.
 package auth
 
 import (

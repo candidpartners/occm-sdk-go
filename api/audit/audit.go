@@ -1,4 +1,4 @@
-// Package implements OCCM Audit API
+// Package implements OCCM Audit API.
 package audit
 
 import (
